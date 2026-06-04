@@ -91,7 +91,7 @@ export const deletePost = async (req: UserRequest, res: Response) => {
 export const getPosts = async (req: UserRequest, res: Response) => {
     try {
         const q: number = Number(req.query?.q) || 0;
-        const posts = await Post.find().sort({ createdAt: -1 }).skip(q * 30);
+        const posts = await Post.find().populate("likes comments").sort({ createdAt: -1 }).skip(q * 30);
         return res.status(StatusCodes.OK).json({
             success: true,
             message: "Posts Fetched",

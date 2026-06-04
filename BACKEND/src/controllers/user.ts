@@ -99,7 +99,7 @@ export const profile = async (req: UserRequest, res: Response) => {
         const user = await User.findById(userId);
         const posts = await Post.find({
             createdBy: new mongoose.Types.ObjectId(String(userId))
-        })
+        }).populate("likes comments")
         return res.status(StatusCodes.OK).json({
             success: true,
             message: "Profile Fetched",
