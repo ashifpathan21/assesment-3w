@@ -177,7 +177,14 @@ io.on('connection',
                     if (!post) {
                         throw new Error('Post not found');
                     }
-
+                    const comment = await Comment.findOne({
+                        by: new mongoose.Types.ObjectId(String(socket.userId)),
+                        post: new mongoose.Types.ObjectId(String(data.id)),
+                        _id: data.commentId
+                    });
+                    if (!comment) {
+                        throw new Error('Comment not found');
+                    }
                     await Comment.deleteOne({
                         by: new mongoose.Types.ObjectId(String(socket.userId)),
                         post: new mongoose.Types.ObjectId(String(data.id)),

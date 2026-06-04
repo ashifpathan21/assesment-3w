@@ -7,6 +7,9 @@ const postSchema = new mongoose.Schema({
     contentUrl: {
         type: String
     },
+    publicId: {
+        type: String
+    },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

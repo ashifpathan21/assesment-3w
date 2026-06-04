@@ -1,6 +1,8 @@
 import { v2 as cloudinary, type UploadApiOptions, type UploadApiResponse } from 'cloudinary';
 import multer, { type FileFilterCallback } from 'multer';
 import { Readable } from 'stream';
+import 'dotenv/config'
+
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
