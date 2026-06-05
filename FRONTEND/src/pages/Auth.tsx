@@ -12,8 +12,8 @@ const Auth = () => {
   const [formData, setFormData] = useState({
     name: '',
     username: '',
-    email: '',
-    password: ''
+    email: 'vlogstheash@gmail.com',
+    password: '123456'
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,6 +54,29 @@ const Auth = () => {
           <Tab label="Login" />
           <Tab label="Sign Up" />
         </Tabs>
+
+        {tab === 0 && (
+          <Box 
+            sx={{ 
+              mb: 3, 
+              p: 2, 
+              bgcolor: 'action.hover', 
+              borderRadius: 2, 
+              border: '1px dashed', 
+              borderColor: 'primary.light' 
+            }}
+          >
+            <Typography variant="body2" sx={{ fontWeight: 'medium', color: 'text.secondary', mb: 0.5 }}>
+              Demo Login Credentials (Auto-filled):
+            </Typography>
+            <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+              <strong>Email:</strong> vlogstheash@gmail.com
+            </Typography>
+            <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+              <strong>Password:</strong> 123456
+            </Typography>
+          </Box>
+        )}
 
         <form onSubmit={handleSubmit}>
           <Stack spacing={2}>
