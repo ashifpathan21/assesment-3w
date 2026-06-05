@@ -18,19 +18,23 @@ export const createPost = async (req: UserRequest, res: Response) => {
                 message: "Incomplete fields"
             })
         }
-        let post = null;
+        let postData: any = {
+            createdBy: new mongoose.Types.ObjectId(String(userId)),
+            likes: [],
+            comments: []
+        };
+
         if (caption) {
-            post = await Post.create({
-                caption: caption,
-                createdBy: new mongoose.Types.ObjectId(String(userId))
-            })
-        } else if (file) {
-            const res = await uploadToCloudinary(file);
-            post = await Post.create({
-                contentUrl: res.secure_url,
-                publicId: res.public_id
-            })
+            postData.caption = caption;
         }
+
+        if (file) {
+            const res = await uploadToCloudinary(file);
+            postData.contentUrl = res.secure_url;
+            postData.publicId = res.public_id;
+        }
+
+        const post = await Post.create(postData);
         return res.status(StatusCodes.CREATED).json({
             success: true,
             message: "Post uploaded",
@@ -91,7 +95,18 @@ export const deletePost = async (req: UserRequest, res: Response) => {
 export const getPosts = async (req: UserRequest, res: Response) => {
     try {
         const q: number = Number(req.query?.q) || 0;
-        const posts = await Post.find().populate("likes comments").sort({ createdAt: -1 }).skip(q * 30);
+        const posts = await Post.find()
+            .populate("createdBy")
+            .populate({
+                path: "likes",
+                populate: { path: "by" }
+            })
+            .populate({
+                path: "comments",
+                populate: { path: "by" }
+            })
+            .sort({ createdAt: -1 })
+            .skip(q * 30).exec()
         return res.status(StatusCodes.OK).json({
             success: true,
             message: "Posts Fetched",

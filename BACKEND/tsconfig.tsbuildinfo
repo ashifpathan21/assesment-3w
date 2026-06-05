@@ -1,1 +1,1 @@
-{"root":["./src/index.ts","./src/config/db.ts"],"version":"6.0.3"}
+{"root":["./src/index.ts","./src/server.ts","./src/config/cloudinary.ts","./src/config/db.ts","./src/config/jwt.ts","./src/controllers/post.ts","./src/controllers/user.ts","./src/middlewares/auth.ts","./src/models/comment.ts","./src/models/like.ts","./src/models/post.ts","./src/models/user.ts","./src/routes/route.ts","./src/routes/v1/post.ts","./src/routes/v1/user.ts","./src/types/request.d.ts"],"version":"6.0.3"}

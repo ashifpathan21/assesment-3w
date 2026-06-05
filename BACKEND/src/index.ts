@@ -20,7 +20,7 @@ interface UserSocket extends Socket {
 
 export const io = new Server(server, {
     cors: {
-        origin: process.env.FRONTEND_URI || 'http://localhost:5173'
+        origin: [process.env.FRONTEND_URI, 'http://localhost:5173', 'http://localhost:5174'].filter(Boolean) as string[]
     }
 });
 
@@ -42,7 +42,7 @@ io.use(
 
             const userId = decodeToken(t);
 
-            if (userId) {
+            if (!userId) {
                 return next(new Error("Unauthorized"));
             }
 
@@ -102,8 +102,20 @@ io.on('connection',
                         post: new mongoose.Types.ObjectId(String(data.id))
                     })
 
+                    post.likes.push(like._id);
+                    await post.save();
+
                     await like.populate('by')
-                    const updatedPost = await Post.findById(data.id).populate("likes comments")
+                    const updatedPost = await Post.findById(data.id)
+                        .populate("createdBy")
+                        .populate({
+                            path: "likes",
+                            populate: { path: "by" }
+                        })
+                        .populate({
+                            path: "comments",
+                            populate: { path: "by" }
+                        });
                     socket.to(`user:${post.createdBy}`).emit("liked-your-post", JSON.stringify({ data: like }))
                     socket.send(JSON.stringify({ success: true, data: updatedPost, message: "liked post" }));
                 } catch (error) {
@@ -132,7 +144,20 @@ io.on('connection',
                         by: new mongoose.Types.ObjectId(String(socket.userId)),
                         post: new mongoose.Types.ObjectId(String(data.id))
                     })
-                    const updatedPost = await Post.findById(data.id).populate("likes comments")
+
+                    post.likes = post.likes.filter((likeId: any) => String(likeId) !== String(isLiked._id));
+                    await post.save();
+
+                    const updatedPost = await Post.findById(data.id)
+                        .populate("createdBy")
+                        .populate({
+                            path: "likes",
+                            populate: { path: "by" }
+                        })
+                        .populate({
+                            path: "comments",
+                            populate: { path: "by" }
+                        });
                     socket.send(JSON.stringify({ success: true, data: updatedPost, message: "unliked post" }));
                 } catch (error) {
                     socket.send(JSON.stringify({ success: false, message: error }));
@@ -156,7 +181,21 @@ io.on('connection',
                         post: new mongoose.Types.ObjectId(String(data.id)),
                         text: String(data.text)
                     })
-                    const updatedPost = await Post.findById(data.id).populate("likes comments")
+
+                    post.comments.push(comment._id);
+                    await post.save();
+
+                    await comment.populate('by')
+                    const updatedPost = await Post.findById(data.id)
+                        .populate("createdBy")
+                        .populate({
+                            path: "likes",
+                            populate: { path: "by" }
+                        })
+                        .populate({
+                            path: "comments",
+                            populate: { path: "by" }
+                        });
                     socket.to(`user:${post.createdBy}`).emit("comment-on-your-post", JSON.stringify({ data: comment }))
                     socket.send(JSON.stringify({ success: true, data: updatedPost, message: "comment added" }));
                 } catch (error) {
@@ -190,7 +229,20 @@ io.on('connection',
                         post: new mongoose.Types.ObjectId(String(data.id)),
                         _id: data.commentId
                     })
-                    const updatedPost = await Post.findById(data.id).populate("likes comments")
+
+                    post.comments = post.comments.filter((commentId: any) => String(commentId) !== String(data.commentId));
+                    await post.save();
+
+                    const updatedPost = await Post.findById(data.id)
+                        .populate("createdBy")
+                        .populate({
+                            path: "likes",
+                            populate: { path: "by" }
+                        })
+                        .populate({
+                            path: "comments",
+                            populate: { path: "by" }
+                        });
                     socket.send(JSON.stringify({ success: true, data: updatedPost, message: "comment deleted" }));
                 } catch (error) {
                     socket.send(JSON.stringify({ success: false, message: error }));
@@ -200,7 +252,6 @@ io.on('connection',
 
 
         } catch (error) {
-            console.error(error);
             socket.disconnect()
         }
     }

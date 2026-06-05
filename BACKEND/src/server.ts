@@ -9,7 +9,7 @@ const app = express();
 
 app.use(express.json())
 app.use(cors({
-    origin: process.env.FRONTEND_URI || 'http://localhost:5173'
+    origin: [process.env.FRONTEND_URI, 'http://localhost:5173', 'http://localhost:5174'].filter(Boolean) as string[]
 }))
 app.use('/api/v1', RouterV1)
 

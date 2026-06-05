@@ -6,6 +6,8 @@ import { signToken } from "../config/jwt.js";
 import { UserRequest } from "../types/request.js";
 import Post from "../models/Post.js";
 import mongoose from "mongoose";
+import Like from "../models/Like.js";
+import Comment from "../models/Comment.js";
 
 
 export const login = async (req: Request, res: Response) => {
@@ -96,16 +98,30 @@ export const signup = async (req: Request, res: Response) => {
 export const profile = async (req: UserRequest, res: Response) => {
     try {
         const userId = req.user?.id;
+        if (!userId) {
+            return res.status(StatusCodes.UNAUTHORIZED).json({
+                success: false,
+                message: "Unauthorized - No user ID"
+            });
+        }
         const user = await User.findById(userId);
         const posts = await Post.find({
             createdBy: new mongoose.Types.ObjectId(String(userId))
         }).populate("likes comments")
+        const likes = await Like.find({
+            by:new mongoose.Types.ObjectId(String(userId))
+        }).populate('post')
+        const comments = await Comment.find({
+            by:new mongoose.Types.ObjectId(String(userId))
+        }).populate('post')
         return res.status(StatusCodes.OK).json({
             success: true,
             message: "Profile Fetched",
             data: {
                 user: user,
-                posts: posts
+                posts: posts,
+                likes:likes,
+                comments:comments
             }
         })
     } catch (error) {
